@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  firelytics:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: firelytics-app
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=server.py
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./models:/app/models:ro
+      - ./dataset:/app/dataset:ro
+      - ./templates:/app/templates:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    networks:
+      - firelytics-network
+
+networks:
+  firelytics-network:
+    driver: bridge
